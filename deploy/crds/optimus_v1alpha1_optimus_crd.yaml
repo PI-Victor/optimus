@@ -1,0 +1,127 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: optimus.optimus.cloudflavor.io
+spec:
+  group: optimus.cloudflavor.io
+  names:
+    kind: Optimus
+    listKind: OptimusList
+    plural: optimus
+    singular: optimus
+  scope: Namespaced
+  subresources:
+    status: {}
+  validation:
+    openAPIV3Schema:
+      properties:
+        apiVersion:
+          description: 'APIVersion defines the versioned schema of this representation
+            of an object. Servers should convert recognized schemas to the latest
+            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources'
+          type: string
+        kind:
+          description: 'Kind is a string value representing the REST resource this
+            object represents. Servers may infer this from the endpoint the client
+            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds'
+          type: string
+        metadata:
+          type: object
+        spec:
+          properties:
+            projects:
+              items:
+                properties:
+                  archive:
+                    type: boolean
+                  name:
+                    type: string
+                  namespace:
+                    type: string
+                  notifiers:
+                    items:
+                      properties:
+                        token:
+                          type: string
+                        uri:
+                          type: string
+                      required:
+                      - uri
+                      type: object
+                    type: array
+                  registry:
+                    properties:
+                      secret:
+                        type: string
+                      uri:
+                        type: string
+                      username:
+                        type: string
+                    required:
+                    - username
+                    - secret
+                    - uri
+                    type: object
+                  repository:
+                    type: string
+                  runInterval:
+                    type: object
+                  stages:
+                    items:
+                      properties:
+                        name:
+                          type: string
+                        notify:
+                          type: boolean
+                        parallel:
+                          type: boolean
+                        status:
+                          type: object
+                        steps:
+                          items:
+                            properties:
+                              cmd:
+                                items:
+                                  type: string
+                                type: array
+                              ignoreError:
+                                type: boolean
+                              name:
+                                type: string
+                              runtimeImage:
+                                type: string
+                            required:
+                            - name
+                            - runtimeImage
+                            - ignoreError
+                            - cmd
+                            type: object
+                          type: array
+                      required:
+                      - name
+                      - parallel
+                      - notify
+                      - steps
+                      - status
+                      type: object
+                    type: array
+                  username:
+                    type: string
+                required:
+                - name
+                - namespace
+                - username
+                - archive
+                - registry
+                - repository
+                - stages
+                type: object
+              type: array
+          type: object
+        status:
+          type: object
+  version: v1alpha1
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
