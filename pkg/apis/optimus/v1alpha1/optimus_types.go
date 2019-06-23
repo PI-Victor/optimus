@@ -15,28 +15,20 @@ package v1alpha1
 
 import (
 	"time"
-	
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
-
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
 // OptimusSpec defines the desired state of Optimus
 // +k8s:openapi-gen=true
 type OptimusSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
-	// Add custom validation using kubebuilder tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html
 	Projects []Project `json:"projects"`
 }
 
 // OptimusStatus defines the observed state of Optimus
 // +k8s:openapi-gen=true
 type OptimusStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
-	// Add custom validation using kubebuilder tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html
+	Stages []StageStatus
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -70,7 +62,8 @@ type Project struct {
 	Registry         ContainerRegistry `json:"registry"`
 	Notifiers        []Notifier        `json:"notifiers,omitempty"`
 	Repository       string            `json:"repository"`
-	RunInterval      RunInterval       `json:"runInterval,omitempty"`
+	// The schedule in Cron format, see https://en.wikipedia.org/wiki/Cron.
+	RunInterval string `json:"cron_job,omitempty"`
 
 	Stages []Stage `json:"stages"`
 }
@@ -91,8 +84,10 @@ type Step struct {
 	Name         string `json:"name"`
 	RuntimeImage string `json:"runtimeImage"`
 	IgnoreErrors bool   `json:"ignoreError"`
-
+	StepStatus 
+	
 	Cmd []string `json:"cmd"`
+
 }
 
 // ContainerRegistry holds information about a registry where an image will be
@@ -116,11 +111,6 @@ type Notifier struct {
 	URI   string `json:"uri"`
 	Token string `json:"token,omitempty"`
 }
-
-// RunInterval holds the time date interval for an automatic pipeline to run
-// in cron format.
-// TODO: add kubernetes cronjob types to this, avoid reinventing the wheel.
-type RunInterval struct{}
 
 // StageStatus represents the status of a stage.
 type StageStatus struct {
